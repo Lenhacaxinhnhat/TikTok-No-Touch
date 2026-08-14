@@ -1,4 +1,4 @@
 <resources>
-    <string name="app_name">TikTok Gesture</string>
-    <string name="accessibility_service_description">Cho phép vuốt màn hình tự động khi phát hiện cử chỉ vẫy tay trước camera.</string>
+    <string name="app_name">HandSwipe</string>
+    <string name="accessibility_description">HandSwipe needs accessibility permission to perform swipe gestures.</string>
 </resources>
