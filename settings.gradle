@@ -1,0 +1,2 @@
+rootProject.name = "TikTokGesture"
+include ':app'
