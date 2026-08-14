@@ -26,6 +26,28 @@ class MainActivity : AppCompatActivity() {
             updateStatus()
         }
 
+    private val requestNotificationPermission =
+        registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.RequestPermission()) { granted ->
+            if (!granted) {
+                Toast.makeText(
+                    this,
+                    "Chưa cấp quyền thông báo — service vẫn chạy được nhưng bạn sẽ không thấy thông báo nền",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+
+    /** Trả về true nếu đã sẵn sàng (đã có quyền hoặc không cần xin trên phiên bản Android này) */
+    private fun ensureNotificationPermission() {
+        if (android.os.Build.VERSION.SDK_INT >= 33) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestNotificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -58,11 +80,17 @@ class MainActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            ensureNotificationPermission()
+
             val intent = Intent(this, GestureForegroundService::class.java)
             if (!serviceRunning) {
-                ContextCompat.startForegroundService(this, intent)
-                serviceRunning = true
-                Toast.makeText(this, "Đã bật nhận diện cử chỉ. Mở TikTok và thử vẫy tay!", Toast.LENGTH_LONG).show()
+                try {
+                    ContextCompat.startForegroundService(this, intent)
+                    serviceRunning = true
+                    Toast.makeText(this, "Đã bật nhận diện cử chỉ. Mở TikTok và thử vẫy tay!", Toast.LENGTH_LONG).show()
+                } catch (e: Exception) {
+                    Toast.makeText(this, "Lỗi khi bật service: ${e.message}", Toast.LENGTH_LONG).show()
+                }
             } else {
                 stopService(intent)
                 serviceRunning = false
@@ -72,6 +100,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         updateStatus()
+        ensureNotificationPermission()
     }
 
     override fun onResume() {

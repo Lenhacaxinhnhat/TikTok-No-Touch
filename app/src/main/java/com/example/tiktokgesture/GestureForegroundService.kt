@@ -27,7 +27,17 @@ class GestureForegroundService : LifecycleService() {
     override fun onCreate() {
         super.onCreate()
         cameraExecutor = Executors.newSingleThreadExecutor()
-        startForeground(NOTIFICATION_ID, buildNotification())
+        try {
+            startForeground(NOTIFICATION_ID, buildNotification())
+        } catch (e: Exception) {
+            android.widget.Toast.makeText(
+                this,
+                "Không thể bật service nền: ${e.message}",
+                android.widget.Toast.LENGTH_LONG
+            ).show()
+            stopSelf()
+            return
+        }
         startCamera()
     }
 
