@@ -111,12 +111,16 @@ class MainActivity : AppCompatActivity() {
     private fun updateStatus() {
         val cameraGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) ==
             PackageManager.PERMISSION_GRANTED
-        val accessibilityOn = GestureAccessibilityService.instance != null
+        val service = GestureAccessibilityService.instance
+        val accessibilityOn = service != null
 
         binding.tvStatus.text = buildString {
             append("Camera: ${if (cameraGranted) "✓ đã cấp" else "✗ chưa cấp"}\n")
             append("Accessibility: ${if (accessibilityOn) "✓ đã bật" else "✗ chưa bật"}\n")
             append("Nhận diện cử chỉ: ${if (serviceRunning) "✓ đang chạy" else "✗ đang tắt"}")
+            if (service != null) {
+                append("\nDebug: ${service.debugStatus()}")
+            }
         }
     }
 }
